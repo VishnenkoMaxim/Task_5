@@ -11,7 +11,7 @@
 
 using namespace std;
 
-class Shape{
+class Shape {
 private:
     int x;
     int y;
