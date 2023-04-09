@@ -1,0 +1,84 @@
+@startuml
+
+abstract Shape{
+-coord_x : int
+-coord_y : int
+
++Shape()
++Shape(const int, const int)
+
++GetCoord(int &, int &) : void
++SetCoord(const int, const int) : void
++virtual GetSquare() const = 0 : double
+}
+
+class Rectangle{
+-width : int
+-height : int
+
++Rectangle()
++Rectangle(const int _x, const int _y, const int _width, const int _height)
++GetSquare() override : double
+}
+
+class Circle{
+-radius: double
+
++Circle()
++Circle(const int _x, const int _y, const double _radius)
++GetSquare() override : double
+}
+
+class Element{
+- type : int
+- shared_ptr : data
+
++Element() = delete
++Element(Circle &&) : int
++Element(Rectangle &&) : int
+~Element()
+
++GetType() : int
++GetCoord(int &, int &) : void
++SetCoord(const int, const int) : void
++GetSquare() : double
+}
+
+class Document{
+- ObjectsContainer : AssociateContainer<int, Element>
+- height : int
+- width : int
+- Path : string
+
++Document()
++Document(const int height, const int width)
++GetAttributes() : tuple<...>
++SetAttributes(const tuple<...>) : void
+~Document()
+
++CreateElement(Element &&) : int
++DeleteElement(const int id) : int
++Export(const string &path_dst) : int
+}
+
+class Actions{
++ CreateNewDocument() : Document
++ Import(Document &doc, const string &path_src) : int
++ Export(Document &doc, const string &path_dst) : int
++ CreateElement(Document &doc, Element &&) : int
++ DeleteElement(Document &doc, const int id) : int
+}
+
+class UserActions{
+}
+
+Shape <|-- Rectangle
+Shape <|-- Circle
+Rectangle "many" *-- "1" Element
+Circle "many" *-- "1" Element
+Element "many" *-- "1" Document
+Actions - Document : manage >
+UserActions - Actions : uses >
+
+
+@enduml
