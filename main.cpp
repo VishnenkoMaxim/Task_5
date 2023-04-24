@@ -1,69 +1,111 @@
 #include <iostream>
-#include "version.h"
-#include "Primitives.h"
-#include "Document.h"
+#include<map>
+#include <memory>
+#include <utility>
 
 using namespace std;
 
-namespace Actions{
-    shared_ptr<Document> CreateNewDocument() {
-        return shared_ptr<Document> (new Document);
+#include "version.h"
+#include "Primitives.h"
+
+class Document{
+private:
+    map<int, Element> objects_map;
+
+public:
+    Document() = default;
+
+    int CreateElement(const Element &_element){
+        UNUSED(_element);
+        return 0;
+    }
+
+    int DeleteElement(const int id){
+        UNUSED(id);
+        return 0;
+    }
+
+    int Export(const string & path) const {
+        UNUSED(path);
+        return 0;
+    }
+
+    int Import(const string & path) {
+        UNUSED(path);
+        return 0;
+    }
+
+    void Print(){
+        //
+    }
+
+    ~Document(){
+        objects_map.clear();
+    };
+};
+
+class DocumentView{
+public:
+    void ShowDocument(shared_ptr<Document> doc){
+        //show document
+        doc->Print();
+    }
+
+    ~DocumentView(){}
+};
+
+class DocumentController{
+private:
+    shared_ptr<DocumentView>    view;
+    shared_ptr<Document>        doc;
+public:
+    explicit DocumentController(shared_ptr<DocumentView> _view){
+        view = _view;
+    }
+
+    void CreateDocument(){
+        doc.reset();
+        doc = make_shared<Document> ();
     };
 
-    shared_ptr<Document> Import(const string &path_src){
-        UNUSED(path_src);
-        return nullptr;
+    int ImportDocument(const string &path_src){
+        doc.reset();
+        return doc->Import(path_src);
     };
 
-    int Export(const shared_ptr<Document> &doc, const string &path_dst) {
+    int ExportDocument(const string &path_dst){
         return doc->Export(path_dst);
     }
 
-    int CreateElement(shared_ptr<Document> &doc, const Element &element){
-        return doc->CreateElement(element); // id
+    int CreateElement(const Element &_obj){
+        return doc->CreateElement(_obj);
     }
 
-    int DeleteElement(shared_ptr<Document> &doc, const int id){
+    void DeleteElement(const int id){
         doc->DeleteElement(id);
-        return 0;
-    }
-}
-using namespace Actions;
-
-namespace UserActions{
-    shared_ptr<Document> OnCreateDocument(){
-        return CreateNewDocument();
-    };
-
-    shared_ptr<Document> OnImportDocument(const string &path_src){
-        return Import(path_src);
-    };
-
-    int OnExportDocument(const shared_ptr<Document> &doc, const string &path_dst){
-        return Export(doc, path_dst);
     }
 
-    int OnCreateElement(shared_ptr<Document> &doc, const Element &_obj){
-        return CreateElement(doc, _obj);
+    void UpdateView(){
+        view->ShowDocument(doc);
     }
-
-    void OnDeleteElement(shared_ptr<Document> &doc, const int id){
-        DeleteElement(doc, id);
-    }
-}
-using namespace UserActions;
+};
 
 int main() {
+    auto view = make_shared<DocumentView>();
+    DocumentController controller(view);
 
-    auto doc_1 = OnCreateDocument();
-    auto doc_2 = OnImportDocument("/tmp/file.cfg");
-    OnExportDocument(doc_2, "/tmp/file_2.cfg");
+    controller.CreateDocument();
+    controller.UpdateView();
 
-    int id_1 = OnCreateElement(doc_2, Element(Circle{1,1,10.2}));
-    int id_2 = OnCreateElement(doc_2, Element(Rectangle{10,10,5,5}));
+    controller.ImportDocument("/cfg/file.ext");
+    int id_1 = controller.CreateElement(Element(Circle{1,1,10.2}));
+    int id_2 = controller.CreateElement(Element(Rectangle{10,10,5,5}));
+    controller.UpdateView();
 
-    OnDeleteElement(doc_2, id_1);
-    OnDeleteElement(doc_2, id_2);
+    controller.DeleteElement(id_1);
+    controller.UpdateView();
+    controller.DeleteElement(id_2);
+    controller.ExportDocument("/test/file.ext");
 
     return EXIT_FAILURE;
 }

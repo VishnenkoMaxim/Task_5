@@ -46,30 +46,31 @@ class Element{
 
 class Document{
 - ObjectsContainer : AssociateContainer<int, Element>
-- height : int
-- width : int
-- Path : string
 
 +Document()
-+Document(const int height, const int width)
-+GetAttributes() : tuple<...>
-+SetAttributes(const tuple<...>) : void
 ~Document()
 
 +CreateElement(Element &&) : int
 +DeleteElement(const int id) : int
 +Export(const string &path_dst) : int
++Import() : int
++Print() : void
 }
 
-class Actions{
-+ CreateNewDocument() : Document
-+ Import(Document &doc, const string &path_src) : int
-+ Export(Document &doc, const string &path_dst) : int
-+ CreateElement(Document &doc, Element &&) : int
-+ DeleteElement(Document &doc, const int id) : int
+class DocumentView{
++ShowDocument() : void
 }
 
-class UserActions{
+class DocumentController{
+-view : ptr
+-doc : ptr
++DocumentController()
++CreateDocument() : void
++ImportDocument(string path) : int
++ExportDocument(string path) : int
++CreateElement(Element obj) : int
++DeleteElement(int di) : int
++UpdateView() : void
 }
 
 Shape <|-- Rectangle
@@ -77,8 +78,7 @@ Shape <|-- Circle
 Rectangle "many" *-- "1" Element
 Circle "many" *-- "1" Element
 Element "many" *-- "1" Document
-Actions - Document : manage >
-UserActions - Actions : uses >
-
-
+DocumentController - Document : manage >
+DocumentView - Document : show >
+DocumentController - DocumentView : uses >
 @enduml
